@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNTM PRIVAT</title>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap">
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <link rel="icon" href="https://i.imgur.com/qVJAgfF.png" type="image/x-icon">
+    <link rel="shortcut icon" href="https://i.imgur.com/qVJAgfF.png" type="image/x-icon">
+
+    <script>
+        function e(name)
+        {
+            return document.getElementById(name);
+        }
+
+        function Show(element)
+        {
+            element.style.display = "block"
+        }
+
+        function Hide(element)
+        {
+            element.style.display = "none"
+        }
+
+        var DatabaseURL = "https://untmprivat-default-rtdb.europe-west1.firebasedatabase.app/";
+
+        const firebaseApp = firebase.initializeApp(
+        { 
+            apiKey: "AIzaSyCPn52UmQZaBGtOj-gYeT7oTVNxIeYIz6U",
+            authDomain: "untmprivat.firebaseapp.com",
+            databaseURL: "https://untmprivat-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "untmprivat",
+            storageBucket: "untmprivat.appspot.com",
+            messagingSenderId: "1027445748417",
+            appId: "1:1027445748417:web:b99ab46836ff2b4d67da40"
+        });
+
+        const db = firebaseApp.firestore();
+        const auth = firebaseApp.auth();
+
+        var database;
+        var dataRef;
+
+        var IstAngemeldet = false;
+
+        function InitWebseite(PasswortBenutzereingabe)
+        {        
+            var email = "username@untmprivat.com";
+
+            auth.signInWithEmailAndPassword(email, PasswortBenutzereingabe)
+            .then((userCredential) =>
+            {
+                console.log("Anmeldung erfolgreich:", userCredential.user.uid);            
+
+                database = firebase.database();
+                dataRef = database.ref();
+
+                IstAngemeldet = true;
+
+                document.getElementById("AnmeldungFenster").style.display = "none";
+                document.getElementById("GesamteWebseite").style.display = "block";
+                document.getElementById("AnmeldungFehlgeschlagen").style.display = "none";
+
+                setCookie("PasswortUntmPrivat", PasswortBenutzereingabe)
+
+                Event_AnmeldungAbgeschlossen();
+            })
+            .catch((error) => 
+            {
+                IstAngemeldet = false;
+
+                document.getElementById("AnmeldungFenster").style.display = "none";
+                document.getElementById("GesamteWebseite").style.display = "none";
+                document.getElementById("AnmeldungFehlgeschlagen").style.display = "block";
+            });
+        }
+
+        function GetVariable(Pfad)
+        {
+            return new Promise((resolve, reject) =>
+            {
+                dataRef.child(Pfad).once("value")
+                    .then((snapshot) =>
+                    {
+                        const variableninhalt = snapshot.val();
+                        resolve(variableninhalt);
+                        console.log(`LESEN: ${Pfad}`);
+                    })
+                    .catch((error) =>
+                    {
+                        console.log("Fehler beim Lesen der Daten:", error.message);
+                        reject(error);
+                    });
+            });
+        }
+
+        function SetVariable(Pfad, neuerWert)
+        {
+            return new Promise((resolve, reject) =>
+            {
+                dataRef.child(Pfad).set(neuerWert)
+                    .then(() =>
+                    {
+                        console.log(`Erfolgr.geschrieben '${Pfad}', '${neuerWert}'`);
+                        resolve();
+                    })
+                    .catch((error) =>
+                    {
+                        console.log("Fehler beim Schreiben der Daten:", error.message);
+                        reject(error);
+                    });
+            });
+        }
+
+        function GetSubvariablen(Pfad)
+        {
+            return new Promise((resolve, reject) => {
+                dataRef.child(Pfad).once("value")
+                    .then((snapshot) => {
+                        const data = snapshot.val();
+                        if (data && typeof data === "object") {
+                            const subVariablesList = Object.keys(data).map(subVar => `${Pfad}/${subVar}`);
+                            resolve(subVariablesList);
+                        } else {
+                            resolve([]);
+                        }
+                    })
+                    .catch((error) => {
+                        console.log("Fehler beim Lesen der Daten:", error.message);
+                        reject(error);
+                    });
+            });
+        }
+
+        function formatDate(date)
+        {
+            if (!(date instanceof Date))
+            {
+                return "Ungültiges Datum";
+            }
+
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+
+            const formattedDate = `${day}.${month}.${year}`;
+
+            return formattedDate;
+        }
+
+        function GetStringDate(date)
+        {
+            if (!(date instanceof Date))
+            {
+                return "UngultigesDatum";
+            }
+
+            return `${currentDateTime.getFullYear()}-${String(currentDateTime.getMonth() + 1).padStart(2, '0')}-${String(currentDateTime.getDate()).padStart(2, '0')}`
+        }
+
+        function getZeitstempel()
+        {
+            return new Date().getTime();
+        }
+
+        function getFileName(path)
+        {
+            const segments = path.split('/');
+            return segments[segments.length - 1];
+        }
+
+        function setCookie(name, value)
+        {
+            var expirationDate = new Date();
+            expirationDate.setDate(expirationDate.getDate() + 30);
+
+            document.cookie = name + "=" + value + "; expires=" + expirationDate.toUTCString() + "; path=/";
+        }
+
+        function getCookie(name)
+        {
+            var cookieName = name + "=";
+            var cookies = document.cookie.split(';');
+
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.indexOf(cookieName) === 0) {
+                    return cookie.substring(cookieName.length, cookie.length);
+                }
+            }
+
+            return null;
+        }
+
+        function deleteCookie(name)
+        {
+            document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        }
+
+        function cookieExists(name)
+        {
+            return getCookie(name) !== null;
+        }
+    </script>
+</head>
+<body style="background-color: rgb(36, 36, 36); color: rgb(218, 218, 218); ">
+    <div class="container mt-5" id="AnmeldungFenster" style="display: none; text-align: center;"> 
+        <strong style="font-size: 35pt; color: rgb(255, 255, 255);">Anmelden</strong><br><br>
+        <label>Bitte das Passwort eingeben</label>
+        <input type="password" class="form-control" id="PasswortTextBox" aria-describedby="basic-addon3" placeholder="Passwort eingeben"><br><br>
+        <button type="button" onclick="InitWebseite(document.getElementById('PasswortTextBox').value)" class="btn btn-primary">Anmelden</button>
+    </div>
+
+    <div class="container mt-5" id="AnmeldungFehlgeschlagen" style="display: none; text-align: center;"> 
+        <strong style="font-size: 25pt; color: rgb(255, 255, 255);">Authentifizierung<br>fehlgeschlagen</strong><br><br>
+        <button type="button" onclick="location.reload()" class="btn btn-danger">Erneut versuchen</button>
+    </div>
+
+    <div id="GesamteWebseite" style="text-align: center; display: none;" class="ml-3 mr-3">
+        <br>
+        <div class="row">
+
+            <div class="ml-4" style="width: 80px; height: 80px; text-align: left;">
+                <img src="https://i.imgur.com/c1l4tr3.png" style="width: 80px;" alt="">
+            </div>
+
+            <div class="ml-3" style="text-align: left;">
+                <strong style="font-size: 18pt;"><strong>UntM Tools</strong><br>Diverse Online-Tools</strong><br>
+            </div>
+            
+        </div>
+        
+        <hr style="background-color: white;">
+        
+        <br>
+        
+        <div id="Hauptmenue">
+            <button type="button" onclick="SeiteOeffnen('Kleiderwechselplan')" class="btn btn-secondary"><img src="https://cdn-icons-png.flaticon.com/512/6517/6517832.png" class="mr-2" height="22px" alt="">Kleiderwechselplan</button>
+        </div>
+
+        <div id="Unterseiten" style="display: none;">
+
+            <div id="Kleiderwechselplan" style="display: none;">
+                <label>Bitte Datum auswhählen</label>
+                <input type="date" onchange="KleiderwechselplanAktualisieren()" class="form-control" id="KleiderwechselplanDatum" min="2023-08-01" placeholder="Datum auswählen"><br>
+                <br>
+                <strong><h4 id="KleiderwechselUeberschrift">Kleiderwechsel vom 00.00.0000</h4></strong><br>
+                <div id="Kleidungsstuecke">
+                    <button class="btn btn-secondary" onclick="KleidungswechselZustandAendern('Hose')" id="Hose" style="width: 90%;"></button><br><br>
+                    <button class="btn btn-secondary" onclick="KleidungswechselZustandAendern('Socken')" id="Socken" style="width: 90%;"></button><br><br>
+                    <button class="btn btn-secondary" onclick="KleidungswechselZustandAendern('Shirt')" id="Shirt" style="width: 90%;"></button><br><br>
+                    <button class="btn btn-secondary" onclick="KleidungswechselZustandAendern('Pullover')" id="Pullover" style="width: 90%;"></button><br><br>
+                    <button class="btn btn-secondary" onclick="KleidungswechselZustandAendern('Nachthemd')" id="Nachthemd" style="width: 90%;"></button><br><br>
+                    <button class="btn btn-secondary" onclick="KleidungswechselZustandAendern('Bettwäsche')" id="Bettwäsche" style="width: 90%;"></button><br><br>
+                    <button class="btn btn-secondary" onclick="KleidungswechselZustandAendern('Dusche')" id="Dusche" style="width: 90%;"></button><br><br>
+                    <button class="btn btn-secondary" onclick="KleidungswechselZustandAendern('Haare')" id="Haare" style="width: 90%;"></button><br><br>
+                    <button class="btn btn-secondary" onclick="KleidungswechselZustandAendern('Rasieren')" id="Rasieren" style="width: 90%;"></button><br><br>
+                    <button class="btn btn-secondary" onclick="KleidungswechselZustandAendern('Pickel')" id="Pickel" style="width: 90%;"></button><br><br>
+                    <button class="btn btn-secondary" onclick="KleidungswechselZustandAendern('Handtuch')" id="Handtuch" style="width: 90%;"></button><br><br>
+                </div>
+            </div>
+                        
+            <div id="Static">
+                <br><hr style="background-color: white;"><br><button class="btn btn-danger" onclick="HauptmenueAufrufen()"><img src="https://i.imgur.com/Rj1vuiK.png" class="mr-2" height="22px" alt="">Zurück zum Hauptmenü</button>
+            </div>            
+        </div>
+        <br><br><br><br><br><br>
+    </div>
+
+
+    
+</body>
+</html>
+
+<!-- General -->
+<script>    
+    if(cookieExists("PasswortUntmPrivat"))
+    {
+        InitWebseite(getCookie("PasswortUntmPrivat"))
+    }
+    else
+    {
+        document.getElementById("AnmeldungFenster").style.display = "block"
+    }
+
+    function Event_AnmeldungAbgeschlossen()
+    {
+        
+    }
+
+    function GetAlleUnterseiten()
+    {
+        var rv = []
+
+        for(Unterseite of e("Unterseiten").childNodes)
+        {
+            if(Unterseite.id != undefined && Unterseite.id != "Static")
+            {
+                rv.push(Unterseite.id)
+            }            
+        }
+
+        return rv
+    }
+
+    var currentDateTime = new Date()
+    var currentDateString = GetStringDate(currentDateTime)
+
+    function HauptmenueAufrufen()
+    {
+        Show(e("Hauptmenue"))
+        Hide(e("Unterseiten"))
+
+        GetAlleUnterseiten()
+    }
+
+    function SeiteOeffnen(SeiteName)
+    {
+        for(Unterseite of GetAlleUnterseiten())
+        {
+            Hide(e(Unterseite))
+        }
+        
+        Hide(e("Hauptmenue"))
+        Show(e("Unterseiten"))
+        Show(e(SeiteName))
+
+        if(SeiteName == "Kleiderwechselplan")
+        {
+            e("KleiderwechselplanDatum").value = `${currentDateTime.getFullYear()}-${String(currentDateTime.getMonth() + 1).padStart(2, '0')}-${String(currentDateTime.getDate()).padStart(2, '0')}`
+            KleiderwechselplanAktualisieren()            
+        }
+    }
+</script>
+
+<!-- Kleiderwechselplan -->
+<script>
+
+    const locationButtons = document.querySelectorAll('.location-button');
+
+    function KleiderwechselplanAktualisieren()
+    {
+        (async () =>
+        {                 
+            e("KleiderwechselUeberschrift").innerHTML = `Kleiderwechsel vom ${formatDate(new Date(e("KleiderwechselplanDatum").value))}`
+        
+            var KleiderwechselEintraege = Object.entries(await GetVariable("Kleiderwechselplan"))
+
+            var ZuletztHose = new Date("2000-01-01")
+            var ZuletztSocken = new Date("2000-01-01")
+            var ZuletztShirt = new Date("2000-01-01")
+            var ZuletztPullover = new Date("2000-01-01")
+            var ZuletztNachthemd = new Date("2000-01-01")
+            var ZuletztBettwäsche = new Date("2000-01-01")
+            var ZuletztDusche = new Date("2000-01-01")
+            var ZuletztHaare = new Date("2000-01-01")
+            var ZuletztRasieren = new Date("2000-01-01")
+            var ZuletztPickel = new Date("2000-01-01")
+            var ZuletztHandtuch = new Date("2000-01-01")
+
+            for(Kleidungsstueck of e("Kleidungsstuecke").childNodes)
+            {
+                if(Kleidungsstueck.id != undefined && Kleidungsstueck.id != "")
+                {
+                    ButtonAufGrauSetzen(Kleidungsstueck.id)
+                }            
+            }  
+
+            for (var [Datum, GewechselteKleidungsstuecke] of KleiderwechselEintraege)
+            {
+                var DatumDateObjekt = new Date(Datum)
+                if(Datum == e("KleiderwechselplanDatum").value)
+                {
+                    if(GewechselteKleidungsstuecke.Hose) {ButtonAufGruenSetzen("Hose")}
+                    if(GewechselteKleidungsstuecke.Socken) {ButtonAufGruenSetzen("Socken")}
+                    if(GewechselteKleidungsstuecke.Shirt) {ButtonAufGruenSetzen("Shirt")}
+                    if(GewechselteKleidungsstuecke.Pullover) {ButtonAufGruenSetzen("Pullover")}
+                    if(GewechselteKleidungsstuecke.Nachthemd) {ButtonAufGruenSetzen("Nachthemd")}
+                    if(GewechselteKleidungsstuecke.Bettwäsche) {ButtonAufGruenSetzen("Bettwäsche")}
+                    if(GewechselteKleidungsstuecke.Dusche) {ButtonAufGruenSetzen("Dusche")}
+                    if(GewechselteKleidungsstuecke.Haare) {ButtonAufGruenSetzen("Haare")}
+                    if(GewechselteKleidungsstuecke.Rasieren) {ButtonAufGruenSetzen("Rasieren")}
+                    if(GewechselteKleidungsstuecke.Pickel) {ButtonAufGruenSetzen("Pickel")}
+                    if(GewechselteKleidungsstuecke.Handtuch) {ButtonAufGruenSetzen("Handtuch")}
+                }
+                else if(DatumDateObjekt < new Date(e("KleiderwechselplanDatum").value))
+                {
+                    if(GewechselteKleidungsstuecke.Hose && DatumDateObjekt > ZuletztHose) { ZuletztHose = DatumDateObjekt }
+                    if(GewechselteKleidungsstuecke.Socken && DatumDateObjekt > ZuletztSocken) { ZuletztSocken = DatumDateObjekt }
+                    if(GewechselteKleidungsstuecke.Shirt && DatumDateObjekt > ZuletztShirt) { ZuletztShirt = DatumDateObjekt }
+                    if(GewechselteKleidungsstuecke.Pullover && DatumDateObjekt > ZuletztPullover) { ZuletztPullover = DatumDateObjekt }
+                    if(GewechselteKleidungsstuecke.Nachthemd && DatumDateObjekt > ZuletztNachthemd) { ZuletztNachthemd = DatumDateObjekt }
+                    if(GewechselteKleidungsstuecke.Bettwäsche && DatumDateObjekt > ZuletztBettwäsche) { ZuletztBettwäsche = DatumDateObjekt }
+                    if(GewechselteKleidungsstuecke.Dusche && DatumDateObjekt > ZuletztDusche) { ZuletztDusche = DatumDateObjekt }
+                    if(GewechselteKleidungsstuecke.Haare && DatumDateObjekt > ZuletztHaare) { ZuletztHaare = DatumDateObjekt }
+                    if(GewechselteKleidungsstuecke.Rasieren && DatumDateObjekt > ZuletztRasieren) { ZuletztRasieren = DatumDateObjekt }
+                    if(GewechselteKleidungsstuecke.Pickel && DatumDateObjekt > ZuletztPickel) { ZuletztPickel = DatumDateObjekt }
+                    if(GewechselteKleidungsstuecke.Handtuch && DatumDateObjekt > ZuletztHandtuch) { ZuletztHandtuch = DatumDateObjekt }
+                }
+            }
+
+            var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztHose.getTime()) / (1000 * 3600 * 24)
+            e("Hose").innerHTML = `<strong style="font-size: x-large">HOSE</strong><br>Zuletzt am ${formatDate(ZuletztHose)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+
+            var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztSocken.getTime()) / (1000 * 3600 * 24)
+            e("Socken").innerHTML = `<strong style="font-size: x-large">SOCKEN</strong><br>Zuletzt am ${formatDate(ZuletztSocken)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            
+            var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztShirt.getTime()) / (1000 * 3600 * 24)
+            e("Shirt").innerHTML = `<strong style="font-size: x-large">SHIRT</strong><br>Zuletzt am ${formatDate(ZuletztShirt)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            
+            var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztPullover.getTime()) / (1000 * 3600 * 24)
+            e("Pullover").innerHTML = `<strong style="font-size: x-large">PULLOVER</strong><br>Zuletzt am ${formatDate(ZuletztPullover)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            
+            var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztNachthemd.getTime()) / (1000 * 3600 * 24)
+            e("Nachthemd").innerHTML = `<strong style="font-size: x-large">NACHTHEMD</strong><br>Zuletzt am ${formatDate(ZuletztNachthemd)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            
+            var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztBettwäsche.getTime()) / (1000 * 3600 * 24)
+            e("Bettwäsche").innerHTML = `<strong style="font-size: x-large">BETTWÄSCHE</strong><br>Zuletzt am ${formatDate(ZuletztBettwäsche)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            
+            var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztDusche.getTime()) / (1000 * 3600 * 24)
+            e("Dusche").innerHTML = `<strong style="font-size: x-large">DUSCHE</strong><br>Zuletzt am ${formatDate(ZuletztDusche)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            
+            var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztHaare.getTime()) / (1000 * 3600 * 24)
+            e("Haare").innerHTML = `<strong style="font-size: x-large">HAARE</strong><br>Zuletzt am ${formatDate(ZuletztHaare)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            
+            var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztRasieren.getTime()) / (1000 * 3600 * 24)
+            e("Rasieren").innerHTML = `<strong style="font-size: x-large">RASIEREN</strong><br>Zuletzt am ${formatDate(ZuletztRasieren)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            
+            var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztPickel.getTime()) / (1000 * 3600 * 24)
+            e("Pickel").innerHTML = `<strong style="font-size: x-large">PICKEL</strong><br>Zuletzt am ${formatDate(ZuletztPickel)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            
+            var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztHandtuch.getTime()) / (1000 * 3600 * 24)
+            e("Handtuch").innerHTML = `<strong style="font-size: x-large">HANDTUCh</strong><br>Zuletzt am ${formatDate(ZuletztHandtuch)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+        })()
+
+           
+    }
+
+    function ButtonAufGruenSetzen(buttonid)
+    {
+        e(buttonid).classList.remove("btn-secondary");
+        e(buttonid).classList.add("btn-success");
+    }
+
+    function ButtonAufGrauSetzen(buttonid)
+    {
+        e(buttonid).classList.add("btn-secondary");
+        e(buttonid).classList.remove("btn-success");
+    }
+
+    function KleidungswechselZustandAendern(Kleidungsstueck)
+    {
+        (async () =>
+        {                 
+            if(e(Kleidungsstueck).classList[1] == "btn-secondary")
+            {
+                e(Kleidungsstueck).classList.remove("btn-secondary");
+                e(Kleidungsstueck).classList.add("btn-success");
+
+                await SetVariable(`Kleiderwechselplan/${e("KleiderwechselplanDatum").value}/${Kleidungsstueck}`, true)
+            }
+            else if(e(Kleidungsstueck).classList[1] == "btn-success")
+            {
+                e(Kleidungsstueck).classList.add("btn-secondary");
+                e(Kleidungsstueck).classList.remove("btn-success");
+
+                await SetVariable(`Kleiderwechselplan/${e("KleiderwechselplanDatum").value}/${Kleidungsstueck}`, false)
+            }
+        })()
+    }
+</script>
