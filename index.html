@@ -164,6 +164,18 @@
             return formattedDate;
         }
 
+        function getWochentag(date)
+        {
+            var WochentagNr = date.getDay()
+            if(WochentagNr == 0){return "Sonntag"}
+            if(WochentagNr == 1){return "Montag"}
+            if(WochentagNr == 2){return "Dienstag"}
+            if(WochentagNr == 3){return "Mittwoch"}
+            if(WochentagNr == 4){return "Donnerstag"}
+            if(WochentagNr == 5){return "Freitag"}
+            if(WochentagNr == 6){return "Samstag"}
+        }
+
         function GetStringDate(date)
         {
             if (!(date instanceof Date))
@@ -343,7 +355,14 @@
 
         if(SeiteName == "Kleiderwechselplan")
         {
-            e("KleiderwechselplanDatum").value = `${currentDateTime.getFullYear()}-${String(currentDateTime.getMonth() + 1).padStart(2, '0')}-${String(currentDateTime.getDate()).padStart(2, '0')}`
+            var currentDateTimeverw = currentDateTime;
+            if(currentDateTime.getHours() <= 3)
+            {
+                currentDateTimeverw.setDate(currentDateTimeverw.getDate() - 1)
+            }
+         
+            e("KleiderwechselplanDatum").value = `${currentDateTimeverw.getFullYear()}-${String(currentDateTimeverw.getMonth() + 1).padStart(2, '0')}-${String(currentDateTimeverw.getDate()).padStart(2, '0')}`
+           
             KleiderwechselplanAktualisieren()            
         }
     }
@@ -358,7 +377,7 @@
     {
         (async () =>
         {                 
-            e("KleiderwechselUeberschrift").innerHTML = `Kleiderwechsel vom ${formatDate(new Date(e("KleiderwechselplanDatum").value))}`
+            e("KleiderwechselUeberschrift").innerHTML = `Kleiderwechsel vom ${getWochentag(new Date(e("KleiderwechselplanDatum").value))}, ${formatDate(new Date(e("KleiderwechselplanDatum").value))}`
         
             var KleiderwechselEintraege = Object.entries(await GetVariable("Kleiderwechselplan"))
 
@@ -416,37 +435,37 @@
             }
 
             var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztHose.getTime()) / (1000 * 3600 * 24)
-            e("Hose").innerHTML = `<strong style="font-size: x-large">HOSE</strong><br>Zuletzt am ${formatDate(ZuletztHose)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            e("Hose").innerHTML = `<strong style="font-size: x-large; color: ${AnzahlTageHer > 7 ? 'rgb(255, 84, 0)' : 'white'}">HOSE</strong><br>Zuletzt am ${formatDate(ZuletztHose)}<br><strong>${AnzahlTageHer > 100 ? 'Ewig her' : `vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'}`}</strong>`
 
             var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztSocken.getTime()) / (1000 * 3600 * 24)
-            e("Socken").innerHTML = `<strong style="font-size: x-large">SOCKEN</strong><br>Zuletzt am ${formatDate(ZuletztSocken)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            e("Socken").innerHTML = `<strong style="font-size: x-large; color: ${AnzahlTageHer > 3 ? 'rgb(255, 84, 0)' : 'white'}">SOCKEN</strong><br>Zuletzt am ${formatDate(ZuletztSocken)}<br><strong>${AnzahlTageHer > 100 ? 'Ewig her' : `vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'}`}</strong>`
             
             var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztShirt.getTime()) / (1000 * 3600 * 24)
-            e("Shirt").innerHTML = `<strong style="font-size: x-large">SHIRT</strong><br>Zuletzt am ${formatDate(ZuletztShirt)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            e("Shirt").innerHTML = `<strong style="font-size: x-large; color: ${AnzahlTageHer > 3 ? 'rgb(255, 84, 0)' : 'white'}">SHIRT</strong><br>Zuletzt am ${formatDate(ZuletztShirt)}<br><strong>${AnzahlTageHer > 100 ? 'Ewig her' : `vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'}`}</strong>`
             
             var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztPullover.getTime()) / (1000 * 3600 * 24)
-            e("Pullover").innerHTML = `<strong style="font-size: x-large">PULLOVER</strong><br>Zuletzt am ${formatDate(ZuletztPullover)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            e("Pullover").innerHTML = `<strong style="font-size: x-large; color: ${AnzahlTageHer > 4 ? 'rgb(255, 84, 0)' : 'white'}">PULLOVER</strong><br>Zuletzt am ${formatDate(ZuletztPullover)}<br><strong>${AnzahlTageHer > 100 ? 'Ewig her' : `vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'}`}</strong>`
             
             var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztNachthemd.getTime()) / (1000 * 3600 * 24)
-            e("Nachthemd").innerHTML = `<strong style="font-size: x-large">NACHTHEMD</strong><br>Zuletzt am ${formatDate(ZuletztNachthemd)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            e("Nachthemd").innerHTML = `<strong style="font-size: x-large; color: ${AnzahlTageHer > 4 ? 'rgb(255, 84, 0)' : 'white'}">NACHTHEMD</strong><br>Zuletzt am ${formatDate(ZuletztNachthemd)}<br><strong>${AnzahlTageHer > 100 ? 'Ewig her' : `vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'}`}</strong>`
             
             var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztBettwäsche.getTime()) / (1000 * 3600 * 24)
-            e("Bettwäsche").innerHTML = `<strong style="font-size: x-large">BETTWÄSCHE</strong><br>Zuletzt am ${formatDate(ZuletztBettwäsche)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            e("Bettwäsche").innerHTML = `<strong style="font-size: x-large; color: ${AnzahlTageHer > 30 ? 'rgb(255, 84, 0)' : 'white'}">BETTWÄSCHE</strong><br>Zuletzt am ${formatDate(ZuletztBettwäsche)}<br><strong>${AnzahlTageHer > 100 ? 'Ewig her' : `vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'}`}</strong>`
             
             var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztDusche.getTime()) / (1000 * 3600 * 24)
-            e("Dusche").innerHTML = `<strong style="font-size: x-large">DUSCHE</strong><br>Zuletzt am ${formatDate(ZuletztDusche)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            e("Dusche").innerHTML = `<strong style="font-size: x-large; color: ${AnzahlTageHer > 6 ? 'rgb(255, 84, 0)' : 'white'}">DUSCHE</strong><br>Zuletzt am ${formatDate(ZuletztDusche)}<br><strong>${AnzahlTageHer > 100 ? 'Ewig her' : `vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'}`}</strong>`
             
             var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztHaare.getTime()) / (1000 * 3600 * 24)
-            e("Haare").innerHTML = `<strong style="font-size: x-large">HAARE</strong><br>Zuletzt am ${formatDate(ZuletztHaare)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            e("Haare").innerHTML = `<strong style="font-size: x-large; color: ${AnzahlTageHer > 6 ? 'rgb(255, 84, 0)' : 'white'}">HAARE</strong><br>Zuletzt am ${formatDate(ZuletztHaare)}<br><strong>${AnzahlTageHer > 100 ? 'Ewig her' : `vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'}`}</strong>`
             
             var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztRasieren.getTime()) / (1000 * 3600 * 24)
-            e("Rasieren").innerHTML = `<strong style="font-size: x-large">RASIEREN</strong><br>Zuletzt am ${formatDate(ZuletztRasieren)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            e("Rasieren").innerHTML = `<strong style="font-size: x-large; color: ${AnzahlTageHer > 4 ? 'rgb(255, 84, 0)' : 'white'}">RASIEREN</strong><br>Zuletzt am ${formatDate(ZuletztRasieren)}<br><strong>${AnzahlTageHer > 100 ? 'Ewig her' : `vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'}`}</strong>`
             
             var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztPickel.getTime()) / (1000 * 3600 * 24)
-            e("Pickel").innerHTML = `<strong style="font-size: x-large">PICKEL</strong><br>Zuletzt am ${formatDate(ZuletztPickel)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            e("Pickel").innerHTML = `<strong style="font-size: x-large; color: ${AnzahlTageHer > 8000 ? 'rgb(255, 84, 0)' : 'white'}">PICKEL</strong><br>Zuletzt am ${formatDate(ZuletztPickel)}<br><strong>${AnzahlTageHer > 100 ? 'Ewig her' : `vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'}`}</strong>`
             
             var AnzahlTageHer = (new Date(e("KleiderwechselplanDatum").value).getTime() - ZuletztHandtuch.getTime()) / (1000 * 3600 * 24)
-            e("Handtuch").innerHTML = `<strong style="font-size: x-large">HANDTUCh</strong><br>Zuletzt am ${formatDate(ZuletztHandtuch)} ${AnzahlTageHer > 100 ? '(Ewig her)' : `(vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'})`}`
+            e("Handtuch").innerHTML = `<strong style="font-size: x-large; color: ${AnzahlTageHer > 5 ? 'rgb(255, 84, 0)' : 'white'}">HANDTUCH</strong><br>Zuletzt am ${formatDate(ZuletztHandtuch)}<br><strong>${AnzahlTageHer > 100 ? 'Ewig her' : `vor ${AnzahlTageHer} ${AnzahlTageHer == 1 ? 'Tag' : 'Tage'}`}</strong>`
         })()
 
            
