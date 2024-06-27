@@ -263,7 +263,8 @@
         <br>
         
         <div id="Hauptmenue">
-            <button type="button" onclick="SeiteOeffnen('Kleiderwechselplan')" class="btn btn-secondary"><img src="https://cdn-icons-png.flaticon.com/512/6517/6517832.png" class="mr-2" height="22px" alt="">Kleiderwechselplan</button>
+            <button type="button" onclick="SeiteOeffnen('Kleiderwechselplan')" class="btn btn-secondary"><img src="https://cdn-icons-png.flaticon.com/512/6517/6517832.png" class="mr-2" height="22px" alt="">Kleiderwechselplan</button><br><br>
+            <button type="button" onclick="LinkOeffnen('SparKassenrechner.html')" class="btn btn-secondary"><img src="https://i.imgur.com/GECHxhu.png" class="mr-2" height="22px" alt="">Spar Kassenrechner</button>
         </div>
 
         <div id="Unterseiten" style="display: none;">
@@ -356,7 +357,7 @@
         if(SeiteName == "Kleiderwechselplan")
         {
             var currentDateTimeverw = currentDateTime;
-            if(currentDateTime.getHours() <= 3)
+            if(currentDateTime.getHours() <= 12)
             {
                 currentDateTimeverw.setDate(currentDateTimeverw.getDate() - 1)
             }
@@ -365,6 +366,11 @@
            
             KleiderwechselplanAktualisieren()            
         }
+    }
+
+    function LinkOeffnen(link)
+    {
+        location.assign(link)
     }
 </script>
 
