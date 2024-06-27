@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SPAR Preisrechner</title>
+
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+        <link rel="icon" href="https://i.imgur.com/GECHxhu.png" type="image/x-icon">
+        <link rel="shortcut icon" href="https://i.imgur.com/GECHxhu.png" type="image/x-icon">
+
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap">
+    </head>
+
+    <style>
+        .Produkt {
+            display: inline-block;
+            vertical-align: top;
+            border: 1px solid rgb(207, 207, 207);
+            border-radius: 5px;
+            width: 300px;
+            padding: 10px;
+            margin-right: 5px;
+            margin-left: 5px;
+            margin-top: 10px;
+        }
+    </style>
+
+    <body class="mt-5 mb-5 ml-5 mr-5">
+
+
+        <div id="Produkte" style="font-family: Russo One, sans-serif;">
+
+            <h1 style="margin-left: 5px;">Produkte</h1><br>
+
+            <div class="Produkt">
+                <h5 class="card-title"><img src="https://i.imgur.com/9OBFcbn.png" class="mr-2" height="22px" alt="">MILKA Noisette</h5>
+                <p class="card-text">270 G</p>
+                <span>Hinzufügen:</span><br>
+                <button type="button" onclick="Hinzufuegen('MILKA Noisette', '3.99')" class="btn btn-warning">- 0 %</button> <button type="button" onclick="Hinzufuegen('MILKA Noisette 25%', '3.25')" class="btn btn-success">- 25 %</button> <button type="button" onclick="Hinzufuegen('MILKA Noisette MR', '2.99')" class="btn btn-success">- MR</button>               
+            </div>
+
+            <div class="Produkt">
+                <h5 class="card-title"><img src="https://i.imgur.com/9OBFcbn.png" class="mr-2" height="22px" alt="">SPAR Wellen Pommes</h5>
+                <p class="card-text">750 G</p>
+                <span>Hinzufügen:</span><br>
+                <button type="button" onclick="Hinzufuegen('SPAR Wellen Pommes', '2.99')" class="btn btn-warning">- 0 %</button> <button type="button" onclick="Hinzufuegen('SPAR Wellen Pommes 25%', '2.24')" class="btn btn-success">- 25 %</button>                
+            </div>
+
+            <div class="Produkt">
+                <h5 class="card-title"><img src="https://i.imgur.com/9OBFcbn.png" class="mr-2" height="22px" alt="">SPAR Curly Fries</h5>
+                <p class="card-text">750 G</p>
+                <span>Hinzufügen:</span><br>
+                <button type="button" onclick="Hinzufuegen('SPAR Curly Fries', '2.99')" class="btn btn-warning">- 0 %</button> <button type="button" onclick="Hinzufuegen('SPAR Curly Fries 25%', '2.24')" class="btn btn-success">- 25 %</button>                
+            </div>
+
+            <div class="Produkt">
+                <h5 class="card-title"><img src="https://i.imgur.com/9OBFcbn.png" class="mr-2" height="22px" alt="">Kaffeeroulade</h5>
+                <p class="card-text">1 PC</p>
+                <span>Hinzufügen:</span><br>
+                <button type="button" onclick="Hinzufuegen('Kaffeeroulade', '1.99')" class="btn btn-warning">- 0 %</button>              
+            </div>
+
+            <div class="Produkt">
+                <h5 class="card-title"><img src="https://i.imgur.com/9OBFcbn.png" class="mr-2" height="22px" alt="">Schlutzkrapfen</h5>
+                <p class="card-text">1 PC</p>
+                <span>Hinzufügen:</span><br>
+                <button type="button" onclick="Hinzufuegen('Schlutzkrapfen', '4.99')" class="btn btn-warning">- 0 %</button> <button type="button" onclick="Hinzufuegen('Schlutzkrapfen 25%', '3.74')" class="btn btn-success">- 25 %</button>                
+            </div>
+
+            <div class="Produkt">
+                <h5 class="card-title"><img src="https://i.imgur.com/9OBFcbn.png" class="mr-2" height="22px" alt="">Sodastream Tausch</h5>
+                <p class="card-text">1 FL</p>
+                <span>Hinzufügen:</span><br>
+                <button type="button" onclick="Hinzufuegen('Sodastream Tausch', '8.90')" class="btn btn-warning">- 0 %</button>            
+            </div>
+
+            <div class="Produkt">
+                <h5 class="card-title"><img src="https://i.imgur.com/9OBFcbn.png" class="mr-2" height="22px" alt="">SBUDGET Schokolade</h5>
+                <p class="card-text">100 G</p>
+                <span>Hinzufügen:</span><br>
+                <button type="button" onclick="Hinzufuegen('SBUDGET Schokolade', '0.79')" class="btn btn-warning">- 0 %</button>               
+            </div>
+
+            <hr style="margin-top: 50px; margin-bottom: 50px;">
+
+            <div style="margin-left: 5px;" id="Einkaufswagen">
+                <h1>Einkaufswagen</h1><br>
+
+                <div id="EinkaufswagenTabelle" style="display: none;">
+                    <table class="table" style="width: 350px;">
+                        <thead>
+                            <tr style="background-color: rgb(68, 68, 68); color: rgb(223, 223, 223);">
+                                <th scope="col">Produkt</th>
+                                <th scope="col">Preis</th>
+                            </tr>
+                        </thead>
+                        <tbody id="Tabellenbody">
+                                                                                    
+                        </tbody>
+                    </table>
+                    <button type="button" onclick="location.reload()" class="btn btn-danger" style="margin-top: 30px;">Neu beginnen</button>     
+                </div>
+            </div>
+        </div>
+    </body>
+
+    <script>
+        var ProdukteGekauft = []
+
+        function Hinzufuegen(Produkt, Preis)
+        {
+            ProdukteGekauft.push([Produkt, Preis])          
+            Aktualisieren()                        
+        }
+
+        function Aktualisieren()
+        {
+            var Gesamtpreis = 0
+            EinkaufswagenTabelle.style.display = "block"
+            Tabellenbody.innerHTML = ""
+
+            for(ProduktItem of ProdukteGekauft)
+            {
+                Gesamtpreis += parseFloat(ProduktItem[1])
+                Tabellenbody.innerHTML += `
+                <tr style="background-color: rgb(161, 161, 161); color: rgb(53, 53, 53);">
+                    <td>${ProduktItem[0]}</td>
+                    <td>${ProduktItem[1]} €</td>
+                </tr> `
+            }
+            
+            Tabellenbody.innerHTML += `
+            <tr style="background-color: rgb(143, 184, 161); color: rgb(19, 73, 44); font-size: larger;">
+                <td>GESAMT</td>
+                <td>${Gesamtpreis.toFixed(2)} €</td>
+            </tr> `
+        }
+    </script>
+</html>
