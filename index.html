@@ -231,7 +231,7 @@
         }
     </script>
 </head>
-<body style="background-color: rgb(36, 36, 36); color: rgb(218, 218, 218); ">
+<body class="container mt-5" style="background-color: rgb(36, 36, 36); color: rgb(218, 218, 218); ">
     <div class="container mt-5" id="AnmeldungFenster" style="display: none; text-align: center;"> 
         <strong style="font-size: 35pt; color: rgb(255, 255, 255);">Anmelden</strong><br><br>
         <label>Bitte das Passwort eingeben</label>
@@ -264,6 +264,7 @@
         
         <div id="Hauptmenue">
             <button type="button" onclick="SeiteOeffnen('Kleiderwechselplan')" class="btn btn-secondary"><img src="https://cdn-icons-png.flaticon.com/512/6517/6517832.png" class="mr-2" height="22px" alt="">Kleiderwechselplan</button><br><br>
+            <button type="button" onclick="SeiteOeffnen('Stromkostenrechner')" class="btn btn-secondary"><img src="https://cdn-icons-png.flaticon.com/512/3840/3840766.png" class="mr-2" height="22px" alt="">Stromkostenrechner</button><br><br>
             <button type="button" onclick="LinkOeffnen('SparKassenrechner.html')" class="btn btn-secondary"><img src="https://i.imgur.com/GECHxhu.png" class="mr-2" height="22px" alt="">Spar Kassenrechner</button>
         </div>
 
@@ -288,6 +289,68 @@
                     <button class="btn btn-secondary" onclick="KleidungswechselZustandAendern('Handtuch')" id="Handtuch" style="width: 90%;"></button><br><br>
                 </div>
             </div>
+
+            <div id="Stromkostenrechner" style="display: none; text-align: left;">      
+                
+                <div id="Stromkostenrechner1144">
+                    <h1>Kosten bei Betrieb einer ÖBB 1144</h1><br>
+                    <label>Stromaufnahme eines Fahrmotors [A]</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">Ankerstrom</sub></span>
+                        </div>
+                        <input type="number" class="form-control" placeholder="Wert eingeben ..." aria-label="" aria-describedby="basic-addon1" value="1250" id="Stromkostenrechner1144_AnkerstromEinesMotors"><br>                    
+                    </div>                
+                    
+                    <label>Gesamtanzahl an Motoren (Eine 1144 hat 4 Fahrmotoren) [Int]</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">Anzahl Motoren</sub></span>
+                        </div>
+                        <input type="number" class="form-control" placeholder="Wert eingeben ..." aria-label="" aria-describedby="basic-addon1" value="4" id="Stromkostenrechner1144_AnzahlMotoren"><br>                    
+                    </div>
+                    
+                    <label>Anker Nennspannung eines Fahrmotors (in der Regel 400 VDC) [VDC]</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">Anker Nennspannung</sub></span>
+                        </div>
+                        <input type="number" class="form-control" placeholder="Wert eingeben ..." aria-label="" aria-describedby="basic-addon1" value="400" id="Stromkostenrechner1144_U2"><br>                    
+                    </div>
+                   
+                    <label>Spannung in der Oberleitung (in der Regel 15 kV) [kV]</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">Primärspannung</sub></span>
+                        </div>
+                        <input type="number" class="form-control" placeholder="Wert eingeben ..." aria-label="" aria-describedby="basic-addon1" value="15" id="Stromkostenrechner1144_U1"><br>                    
+                    </div>
+                    
+                    <label>Wie lange wird diese Leistung benötigt? [min]</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">Zeit</sub></span>
+                        </div>
+                        <input type="number" class="form-control" placeholder="Wert eingeben ..." aria-label="" aria-describedby="basic-addon1" value="0.333333" id="Stromkostenrechner1144_t"><br>                    
+                    </div>
+
+                    <label>Preis pro kWh Strom [Cent]</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">Kosten pro kWh</sub></span>
+                        </div>
+                        <input type="number" class="form-control" placeholder="Wert eingeben ..." aria-label="" aria-describedby="basic-addon1" value="17" id="Stromkostenrechner1144_Cent"><br>                    
+                    </div>
+
+                    <br><br>
+
+                    <button class="btn btn-primary" onclick="Stromaufnahme1144Berechnen()">Kosten berechnen</button>
+
+                    <div id="Stromkostenrechner1144_Ergebnis" style="color: rgb(161, 161, 161);"></div>
+
+                </div>
+                
+            </div>
                         
             <div id="Static">
                 <br><hr style="background-color: white;"><br><button class="btn btn-danger" onclick="HauptmenueAufrufen()"><img src="https://i.imgur.com/Rj1vuiK.png" class="mr-2" height="22px" alt="">Zurück zum Hauptmenü</button>
@@ -300,6 +363,53 @@
     
 </body>
 </html>
+
+<!-- Stromkostenrechner -->
+<script>
+    function Stromaufnahme1144Berechnen()
+    {
+        var Stromkostenrechner1144_AnkerstromEinesMotors = parseFloat(e("Stromkostenrechner1144_AnkerstromEinesMotors").value)
+        var Stromkostenrechner1144_AnzahlMotoren = parseFloat(e("Stromkostenrechner1144_AnzahlMotoren").value)
+        var Stromkostenrechner1144_U2 = parseFloat(e("Stromkostenrechner1144_U2").value)
+        var Stromkostenrechner1144_U1 = parseFloat(e("Stromkostenrechner1144_U1").value * 1000)
+        var Stromkostenrechner1144_t = parseFloat(e("Stromkostenrechner1144_t").value * 60) 
+        var Stromkostenrechner1144_Cent = parseFloat(e("Stromkostenrechner1144_Cent").value)
+        var Stromkostenrechner1144_Ergebnis = e("Stromkostenrechner1144_Ergebnis")
+
+
+        var EffektivwertU1 = Stromkostenrechner1144_U1 / 1.414213562
+        var Uebersetzungsverh = EffektivwertU1 / Stromkostenrechner1144_U2
+        var Gesamtstromaufnahme = Stromkostenrechner1144_AnzahlMotoren * Stromkostenrechner1144_AnkerstromEinesMotors
+        var StromDurchOberleitung = Gesamtstromaufnahme / Uebersetzungsverh
+        var BenoetigteLeistung = Gesamtstromaufnahme * Stromkostenrechner1144_U2
+        var GesamteWS = BenoetigteLeistung * Stromkostenrechner1144_t
+        var GesamteKWH = GesamteWS / 1000 / 3600
+        var KostenInEuro = (GesamteKWH * Stromkostenrechner1144_Cent) / 100
+
+        var LaufzeitKernschrottrechnerSekunden = GesamteWS / 200
+        
+
+        Stromkostenrechner1144_Ergebnis.innerHTML = `
+        <br><br>
+
+        <strong style="font-size: larger;">Ergebnisse:</strong><br>    
+        Effektivwert der Oberleitungsspannung = ${EffektivwertU1.toFixed(0)} VDC<br>
+        Uebersetzungsverhältnis Transformator = ${Uebersetzungsverh.toFixed(2)}<br>
+        Gesamtstromaufnahme = ${Gesamtstromaufnahme.toFixed(0)} A<br>
+        Strom durch Oberleitung = ${StromDurchOberleitung.toFixed(0)} A<br>
+        Benötigte Leistung = ${(BenoetigteLeistung / 1000).toFixed(0)} kW / ${((BenoetigteLeistung / 1000) * 1.35962).toFixed(0)} Ps<br>
+        Benötigte Leistung über Zeit = ${GesamteKWH.toFixed(2)} kWh<br>
+        <br>
+        Gesamtkosten: <strong style="font-size: x-large;">${KostenInEuro.toFixed(2)} €</strong><br>
+        <br>
+        <strong style="font-size: larger;">Im Vergleich dazu:</strong><br>
+        Mit der gleichen Energie kann ein 0815 Standard Otto-Rechner: ${(LaufzeitKernschrottrechnerSekunden / 60 / 60 / 24).toFixed(2)} Tage betrieben werden.
+        `
+
+
+
+    }
+</script>
 
 <!-- General -->
 <script>    
