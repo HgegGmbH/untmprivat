@@ -265,6 +265,7 @@
         <div id="Hauptmenue">
             <button type="button" onclick="SeiteOeffnen('Kleiderwechselplan')" class="btn btn-secondary"><img src="https://cdn-icons-png.flaticon.com/512/6517/6517832.png" class="mr-2" height="22px" alt="">Kleiderwechselplan</button><br><br>
             <button type="button" onclick="SeiteOeffnen('Stromkostenrechner')" class="btn btn-secondary"><img src="https://cdn-icons-png.flaticon.com/512/3840/3840766.png" class="mr-2" height="22px" alt="">Stromkostenrechner</button><br><br>
+            <button type="button" onclick="SeiteOeffnen('Timer')" class="btn btn-secondary"><img src="https://cdn-icons-png.flaticon.com/512/3003/3003126.png" class="mr-2" height="22px" alt="">Zeit Timer</button><br><br>
             <button type="button" onclick="LinkOeffnen('SparKassenrechner.html')" class="btn btn-secondary"><img src="https://i.imgur.com/GECHxhu.png" class="mr-2" height="22px" alt="">Spar Kassenrechner</button>
         </div>
 
@@ -351,6 +352,36 @@
                 </div>
                 
             </div>
+
+            <div id="Timer" style="display: none; text-align: left;">
+                <h1>Timer Uhr</h1><br><br>
+                <h2>Standardzeiten</h2><br>
+                <button type="button" onclick="TimerStart('5')" class="btn btn-secondary mb-1"><img src="https://cdn-icons-png.flaticon.com/512/566/566632.png" class="mr-2" height="22px" alt="">5 min</button>
+                <button type="button" onclick="TimerStart('6')" class="btn btn-secondary mb-1"><img src="https://cdn-icons-png.flaticon.com/512/566/566632.png" class="mr-2" height="22px" alt="">6 min</button>
+                <button type="button" onclick="TimerStart('10')" class="btn btn-secondary mb-1"><img src="https://cdn-icons-png.flaticon.com/512/566/566632.png" class="mr-2" height="22px" alt="">10 min</button>
+                <button type="button" onclick="TimerStart('15')" class="btn btn-secondary mb-1"><img src="https://cdn-icons-png.flaticon.com/512/566/566632.png" class="mr-2" height="22px" alt="">15 min</button>
+                <button type="button" onclick="TimerStart('20')" class="btn btn-secondary mb-1"><img src="https://cdn-icons-png.flaticon.com/512/566/566632.png" class="mr-2" height="22px" alt="">20 min</button>
+                <button type="button" onclick="TimerStart('26')" class="btn btn-secondary mb-1"><img src="https://cdn-icons-png.flaticon.com/512/566/566632.png" class="mr-2" height="22px" alt="">26 min</button>
+                <button type="button" onclick="TimerStart('60')" class="btn btn-secondary mb-1"><img src="https://cdn-icons-png.flaticon.com/512/566/566632.png" class="mr-2" height="22px" alt="">1 Stunde</button>
+                <button type="button" onclick="TimerStart('120')" class="btn btn-secondary mb-1"><img src="https://cdn-icons-png.flaticon.com/512/566/566632.png" class="mr-2" height="22px" alt="">2 Stunden</button>
+                <br><br>
+                <label>Alternative Zeitspanne</label>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Zeit in Minuten</sub></span>
+                    </div>
+                    <input type="number" class="form-control" placeholder="Wert eingeben ..." aria-label="" aria-describedby="basic-addon1" id="TimerSeite_AlternativeZeit"><br>                    
+                </div>
+                <br>
+                <button type="button" onclick="TimerStart(e('TimerSeite_AlternativeZeit').value)" class="btn btn-secondary mb-1"><img src="https://cdn-icons-png.flaticon.com/512/566/566632.png" class="mr-2" height="22px" alt="">Alternative Zeitspanne starten</button>
+                
+                <div id="TimerTickFrontend" class="container mt-5" style="display: none;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3003/3003126.png" class="mr-2" height="70px" alt=""><br><br><strong id="VerbleibendeZeitFrontend" style="font-size: xx-large;">11:00</strong><br><br>
+                    <button type="button" onclick="TimerReset()" class="btn btn-danger"><img src="https://i.imgur.com/Rj1vuiK.png" class="mr-2" height="22px" alt="">Timer stop</button>
+                </div>
+
+                <audio id="notification-sound" src="https://hgeggmbh.github.io/untmprivat/klingelgesamt.wav" preload="auto"></audio>
+            </div>
                         
             <div id="Static">
                 <br><hr style="background-color: white;"><br><button class="btn btn-danger" onclick="HauptmenueAufrufen()"><img src="https://i.imgur.com/Rj1vuiK.png" class="mr-2" height="22px" alt="">Zurück zum Hauptmenü</button>
@@ -363,6 +394,86 @@
     
 </body>
 </html>
+
+<!-- Timer -->
+<script>
+    var TimerTickFrontend = e("TimerTickFrontend")
+    var VerbleibendeZeitFrontend = e("VerbleibendeZeitFrontend")
+    var Timer_DateObjekt = new Date()
+    var UrspruenglicheZeitInMinuten = 0
+
+    function TimerStart(ZeitInMinutenString)
+    {
+        var ZeitInMinuten = parseFloat(ZeitInMinutenString)
+
+        if(!isNaN(ZeitInMinuten) && ZeitInMinuten != undefined)
+        {
+            if (Notification.permission !== "denied")
+            {
+                Notification.requestPermission().then(function (permission)
+                {
+                    if (permission === "granted")
+                    {
+                        Show(TimerTickFrontend)
+                        Timer_DateObjekt = new Date(ZeitInMinuten * 60 * 1000)    
+                        UrspruenglicheZeitInMinuten = ZeitInMinuten        
+                        VerbleibendeZeitFrontendAktualisieren()
+                    }
+                    else
+                    {
+                        alert("Die Erlaubnis für Benachrichtigungen wurde abgelehnt.")
+                    }
+                });
+            }
+            else
+            {
+                alert("Die Erlaubnis für Benachrichtigungen wurde bislang nicht erlaubt.")
+            }
+        }
+        else
+        {
+            alert("Fehlerhafte Eingabe der Zeit!")
+        }
+    }
+
+    function TimerReset()
+    {
+        Hide(TimerTickFrontend)
+        Timer_DateObjekt = new Date(0)
+    }
+
+    function VerbleibendeZeitFrontendAktualisieren()
+    {
+        VerbleibendeZeitFrontend.innerHTML = `${Timer_DateObjekt.getMinutes().toString().padStart(2, '0')}:${Timer_DateObjekt.getSeconds().toString().padStart(2, '0')}`
+    }
+
+    setInterval(TimerTickBackend, 1000);
+    function TimerTickBackend()
+    {
+        if(Timer_DateObjekt.getTime() > 0)
+        {
+            Timer_DateObjekt.setSeconds(Timer_DateObjekt.getSeconds() - 1)
+            VerbleibendeZeitFrontendAktualisieren()
+
+            if(Timer_DateObjekt.getTime() <= 0)
+            {
+                if (Notification.permission === "granted") 
+                {
+                    var notification = new Notification("Timer ENDE",
+                    {
+                        body: `Der ${UrspruenglicheZeitInMinuten}-Minuten Timer ist abgelaufen!`,
+                        icon: "https://cdn-icons-png.flaticon.com/512/272/272238.png"
+                    });
+
+                    var audio = document.getElementById('notification-sound');
+                    audio.play();
+                }
+                
+                TimerReset()
+            }
+        }        
+    }
+</script>
 
 <!-- Stromkostenrechner -->
 <script>
