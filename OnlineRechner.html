@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8">
+    <title>Online Rechner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Orbitron:wght@400..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  </head>
+
+  <body style="font-family: Space Mono;">
+    <h1 id="Ueberschrift">Online Rechner</h1>
+    <pre id="output">Rechnungen zeilenweise eingeben:<br>Anklicken Ergebnis = Zahl kopieren</pre>
+
+    <div style="position: relative; font-family: 'Consolas', 'Arial Narrow', Arial, sans-serif; font-size: xx-large; " id="">
+      <textarea id="code" oninput="Ausfuehren()" style="font-family: inherit; font-size: inherit; position: absolute; top: 0; left: 0; width: 95%; height: 500px; padding: 20px;"></textarea><br>
+
+      <div style="position: absolute; top: 21px; left: 21px;" id="AutoAntworten">
+
+      </div>
+
+
+
+
+    </div>
+    
+
+
+    
+    <button onclick="Ausfuehren()">Start</button>
+  </body>
+</html>
+
+
+<style>
+
+  .auto
+  {
+    background-color: red;
+  }
+
+</style>
+
+
+<script>
+
+  //176/10 = 17.6
+
+  //222/6 = 37
+
+  var AutoAntworten = document.getElementById("AutoAntworten")
+
+  function AddAutoAntwort(x,y,text)
+  {
+      AutoAntworten.innerHTML += `
+      <strong onClick="AutoAntwortClick('${text}'); this.style.color = 'rgb(60,179,113)'" style="cursor: pointer; position: absolute; top: ${37 * y}px; left: ${17.6 * x}px; color: rgb(150,0,0);">${text}</strong>            
+      `
+  }
+
+  function AutoAntwortClick(text)
+  {
+    navigator.clipboard.writeText(text.toString())
+  }
+
+  function AutoAntwortenLoeschen()
+  {
+    AutoAntworten.innerHTML = ""
+  }
+
+  var context = {}
+
+  for (let index = 0; index < 10; index++) {
+    
+    for (let index2 = 0; index2 < 10; index2++) {
+      //AddAutoAntwort(index2, index, "X");
+    }
+    
+  }
+
+  function Ausfuehren()
+  {
+    AutoAntwortenLoeschen()
+
+    const textarea = document.getElementById('code');
+
+    if(textarea.value.toString().includes(","))
+    {
+      textarea.value = textarea.value.replace(/,/g, '.');
+    }
+
+    
+
+    if(textarea.value == "")
+    {
+      context = {};
+    }
+
+    const lines = textarea.value.split('\n');
+    
+
+    // Erste Runde: Variablen-Zuweisungen verarbeiten
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      lines[i] = line
+
+      // Zuweisung, z. B. x=3 oder y = 4
+      const assign = line.match(/^(\w+)\s*=\s*([^=].*)$/);
+      if (assign) {
+        const varName = assign[1];
+        const expr = assign[2];
+        try {
+          const val = Function(...Object.keys(context), 'return ' + expr)(...Object.values(context));
+          context[varName] = val;
+        } catch {
+          // ignorieren
+        }
+      }
+    }
+
+    // Zweite Runde: Zeilen mit Ausdruck und "=" am Ende berechnen
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      const exprMatch = line.match(/^(.+)=\s*$/);
+      if (exprMatch) {
+        const expr = exprMatch[1].trim();
+        try {
+          const result = Function(...Object.keys(context), 'return ' + expr)(...Object.values(context));
+          //lines[i] = expr + ' = ' + `${result}`;
+          AddAutoAntwort(expr.length + 1, i, `${parseFloat(result.toFixed(2))}`)
+        } catch {
+          //lines[i] = expr + ' = [Fehler]';
+        }
+      }
+    }
+
+    textarea.value = lines.join('\n');
+
+  
+  
+  }
+  
+  
+</script>
