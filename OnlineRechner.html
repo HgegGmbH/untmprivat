@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" style="height: 100%;">
   <head>
     <meta charset="UTF-8">
     <title>Online Rechner</title>
@@ -8,12 +8,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Orbitron:wght@400..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
   </head>
 
-  <body style="font-family: Space Mono;">
-    <h1 id="Ueberschrift">Online Rechner</h1>
-    <pre id="output">Rechnungen zeilenweise eingeben:<br>Anklicken Ergebnis = Zahl kopieren</pre>
+  <body style="font-family: Space Mono; height: 99%; background-color: rgb(252, 208, 127)" onclick="IntelliSenseUpdate()" onkeydown="IntellisenseEnter()">
+    
+    <div style="padding: 10px; font-family: Poppins; ">
+      <strong style="font-size: xx-large;">Online Taschenrechner</strong><br>
+      <span>Variablen/Formeln zeilenweise eingeben. Funktionen Rechts / Rechnungen Links.<br>Ergebnis durch Anklicken in die Zwischenablage kopieren.</span>    
+    </div>
 
-    <div style="position: relative; font-family: 'Consolas', 'Arial Narrow', Arial, sans-serif; font-size: 32px; " id="">
-      <textarea id="code" oninput="Ausfuehren()" style="font-family: inherit; font-size: inherit; position: absolute; top: 0; left: 0; width: 95%; height: 500px; padding: 20px;"></textarea><br>
+    <div style="position: relative; font-family: 'Consolas', 'Arial Narrow', Arial, sans-serif; font-size: 32px; height: 85%;" id="">
+      <textarea  spellcheck="false" id="Rechnungen" class="TextareaRechnung" oninput="Ausfuehren()"></textarea><br>
+
+      <textarea  spellcheck="false" id="Funktionen" class="TextareaFunktionen" oninput="Ausfuehren()"></textarea><br>
+
+      <div class="LabelRechnung">Berechnungen</div>
+      <div class="LabelFunktionen">Funktionen</div>
+
+      <div class="IntelliSense" id="intelli"></div>
 
       <div style="position: absolute; top: 21px; left: 21px;" id="AutoAntworten">
 
@@ -29,20 +39,139 @@
     
     <button onclick="Ausfuehren()">Start</button>
   </body>
+
+
+
+
 </html>
 
 
 <style>
 
-  .auto
+  .IntelliSense
   {
-    background-color: red;
+    position: absolute; top: 5px; left: 10px;
+    background-color: rgb(255, 242, 216);
+    border-radius: 5px;
+    border-width: 3px;
+    border-color: orange;
+    border-style: solid;
+    display: none;
   }
+
+  .LabelRechnung
+  {
+    width: 200px; height: 33px; background-color: orange;
+    position: absolute; top: 0; left: calc(50vw - 200px);
+    font-size: smaller;
+    border-radius: 4px;
+    text-align: center;
+    padding: 5px;
+  }
+
+  .LabelFunktionen
+  {
+    width: 200px; height: 33px; background-color: orange;
+    position: absolute; top: 0; left:  calc(100vw - 280px);
+    font-size: smaller;
+    border-radius: 4px;
+    text-align: center;
+    padding: 5px;
+
+  }
+
+  .TextareaRechnung
+  {
+    background-image: url('https://i.imgur.com/vtPMKgJ.png'); /* z.B. 10x10px */
+    background-repeat: repeat;
+    background-size: 17.59px 37px; /* Größe des Musters */
+    background-position: 14px 8px;  
+    resize: none; 
+    font-family: inherit;
+    font-size: inherit;
+    position: absolute; top: 0; left: 0;
+    width: 50%; height: 100%;
+    padding: 20px;
+    outline: none;
+    border-color: orange; border-width: 3px; border-radius: 8px;
+    color: rgb(41, 41, 41);
+    background-color: rgb(255, 246, 231);
+  }
+
+  .TextareaFunktionen
+  {
+    background-image: url('https://i.imgur.com/vtPMKgJ.png'); /* z.B. 10x10px */
+    background-repeat: repeat;
+    background-size: 17.59px 37px; /* Größe des Musters */
+    background-position: 14px 8px;  
+    resize: none; 
+    font-family: inherit;
+    font-size: inherit;
+    position: absolute; top: 0; left: calc(50vw + 50px);
+    width: 45%; height: 100%;
+    padding: 20px;
+    outline: none;
+    border-color: orange; border-width: 3px; border-radius: 8px;
+    color: rgb(41, 41, 41);
+    background-color: rgb(255, 238, 209);
+  }
+
+  .AutoAntwort
+  {
+    cursor: pointer; 
+    color: rgb(255, 115, 0);
+  }
+
+  .AutoAntwort:hover
+  {
+    color: rgb(167, 167, 167);
+  }
+
+
+  .IntelliSenseAuswahl
+  {
+    cursor: pointer; 
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: rgb(255, 204, 109);
+    font-size: 20px;
+  }
+
+  .IntelliSenseAuswahl:hover
+  {
+    background-color: rgb(255, 113, 61);
+  }
+  
+
 
 </style>
 
 
 <script>
+
+
+  Funktionen = document.getElementById("Funktionen")
+
+  Funktionen.value += "Quadrat=x=>x*x" + "\n"
+  Funktionen.value += "Wurzel=x=>Math.sqrt(x)" + "\n"
+  Funktionen.value += "Max=(a,b)=>Math.max(a,b)" + "\n"
+  Funktionen.value += "Min=(a,b)=>Math.max(a,b)" + "\n"
+  Funktionen.value += "CelsiusZuFahrenheit=c=>(c*9/5)+32" + "\n"
+  Funktionen.value += "FahrenheitZuCelsius=f=>(f-32)*5/9" + "\n"
+  Funktionen.value += "FlaecheKreis=radius=>Math.PI*radius*radius" + "\n"
+  Funktionen.value += "UmfangKreis=radius=>2*Math.PI*radius" + "\n"
+  Funktionen.value += "ZeichenketteLaenge=s=>s.length" + "\n"
+  Funktionen.value += "Grossschreibung=s=>s.toUpperCase()" + "\n"
+  Funktionen.value += "Kleinschreibung=s=>s.toLowerCase()" + "\n"
+  Funktionen.value += "Replace=(string,alt,neu)=>string.replace(new RegExp(alt,'g'),neu)" + "\n"
+  Funktionen.value += "JSONParse=s=>{try{return JSON.parse(s)}catch{return null}}" + "\n"
+  Funktionen.value += "JSONStringify=obj=>JSON.stringify(obj)" + "\n"
+  Funktionen.value += "Base64Codieren=s=>btoa(s)" + "\n"
+  Funktionen.value += "Base64Decodieren=s=>atob(s)" + "\n"
+  Funktionen.value += "Timestamp=()=>Date.now()" + "\n"
+
+
 
   //176/10 = 17.6
 
@@ -53,7 +182,7 @@
   function AddAutoAntwort(x,y,text)
   {
       AutoAntworten.innerHTML += `
-      <strong onClick="AutoAntwortClick('${text}'); this.style.color = 'rgb(60,179,113)'" style="cursor: pointer; position: absolute; top: ${37 * y}px; left: ${17.6 * x}px; color: rgb(150,0,0);">${text}</strong>            
+      <strong onClick="AutoAntwortClick('${text}'); this.style.color = 'rgb(60,179,113)'" class="AutoAntwort" style="position: absolute; top: ${37 * y + 2}px; left: ${17.6 * x + 5}px;">${text}</strong>            
       `
   }
 
@@ -67,72 +196,257 @@
     AutoAntworten.innerHTML = ""
   }
 
-  var context = {}
+  function ersetzeKommasAusserhalbVonKlammern(text)
+  {
+    let result = '';
+    let inKlammer = 0;
 
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
 
-  for (let index = 0; index < 10; index++) {
-    
-    for (let index2 = 0; index2 < 10; index2++) {
-      //AddAutoAntwort(index2, index, "X");
+      if (char === '(') {
+        inKlammer++;
+        result += char;
+      } else if (char === ')') {
+        inKlammer--;
+        result += char;
+      } else if (char === ',' && inKlammer === 0) {
+        result += '.'; // Nur außerhalb der Klammer ersetzen
+      } else {
+        result += char;
+      }
     }
+
+    return result;
+  }
+
+
+  var intelli
+
+  function IntelliSenseAuswahlClick(Vorschlag, WelcheZeile, WelcherSuchtext)
+  {
+    const textarea = document.getElementById("Rechnungen"); // ersetze durch deine Textarea-ID
+    const lines = textarea.value.split('\n');
+
+    // Zeilennummer prüfen, ob gültig
+    if (WelcheZeile < 0 || WelcheZeile >= lines.length) return;
+
+    // Ersetze in der gewünschten Zeile den Suchtext durch Vorschlag
+    lines[WelcheZeile] = lines[WelcheZeile].replace(WelcherSuchtext, Vorschlag);
+
+    // Aktualisiere das Textarea mit dem neuen Inhalt
+    textarea.value = lines.join('\n');
+
+    intelli.style.display = "none"
+
+    textarea.focus();
+
+    IntelliSenseUpdate()
+  }
+
+  function IntellisenseEnter()
+  {
+    const lines = Rechnungen.value.substring(0, Rechnungen.selectionStart).split('\n');
+    const lineNumber = lines.length - 1;
+
+    if(event.key === "Enter" && !lines[lineNumber].includes("=") && intelli.style.display != "none" && intelli.children.length == 1)
+    {    
+      event.preventDefault()
+      intelli.children[0].click()
+    }
+    else if(event.key === "Escape")
+    {
+      intelli.style.display = "none"
+    }
+  }
+
+  function IntelliSenseUpdate()
+  {
+    const pos = Rechnungen.selectionStart;
+
+    // Text bis zum Cursor
+    const textBefore = Rechnungen.value.substring(0, pos);
+
+    // Anzahl der Zeilen vor Cursor
+    const lines = textBefore.split('\n');
+    const lineNumber = lines.length - 1;
+    const colNumber = lines[lines.length - 1].length;
+
+    // Position vom Rechnungen relativ zum Viewport
+    const rect = Rechnungen.getBoundingClientRect();
+
+    // Zeilenhöhe (muss zum CSS line-height passen)
+    const lineHeight = 37;
+
+    // ca. Breite eines Zeichens (monospace Font), hier ca. 9px schätzen
+    const charWidth = 17.6;
+
+    // Berechne Position vom Caret
+    const left = rect.left + window.scrollX + charWidth * colNumber + 15; // +5 wegen padding
+    const top = rect.top + lineHeight * lineNumber - 2*lineHeight + 10;
+
+    intelli.style.left = left + 'px';
+    intelli.style.top = top + 'px';
+
+    intelli.innerHTML = ""
+
+    for(Funktion of Object.entries(context))
+    {
+      var Funktionsname = Funktion[0]
+      var Suchtext = lines[lineNumber].split('(')[0].trim().replace(/[()]/g, "")
+      var Parameter = Funktion[1].toString().split('=')[0].trim().replace(/[()]/g, "")
+
+
+      if(Suchtext != "" && (Funktionsname.toLowerCase().includes(Suchtext.toLowerCase()) || Suchtext == "*"))
+      {        
+        intelli.innerHTML += `<div onClick="IntelliSenseAuswahlClick('${Funktionsname}', '${lineNumber}', '${Suchtext}')" class="IntelliSenseAuswahl">Funktion: <strong>${Funktionsname}(</strong>${Parameter}<strong>)</strong></div>`   
+      }
+
+
+
+      
+
+    }
+
+    if(intelli.innerHTML == "")
+    {
+      intelli.style.display = "none"
+    }
+    else
+    {
+      intelli.style.display = "block"
+    }
+
     
   }
 
+
+  var context = {}
+
+  intelli = document.getElementById("intelli")
+
   function Ausfuehren()
-  {
+  {    
+    
+    IntelliSenseUpdate();
+
     AutoAntwortenLoeschen()
+    context = {}
 
-    const textarea = document.getElementById('code');
+    AusfuehrenTextArea(document.getElementById("Funktionen"))
+    AusfuehrenTextArea(document.getElementById("Rechnungen"))
+  }
 
+  function AusfuehrenTextArea(textarea)
+  {
     if(textarea.value.toString().includes(","))
     {
-      textarea.value = textarea.value.replace(/,/g, '.');
+      textarea.value = ersetzeKommasAusserhalbVonKlammern(textarea.value.toString());
     }
-
-    
-
-    if(textarea.value == "")
-    {
-      context = {};
-    }
+  
 
     const lines = textarea.value.split('\n');
     
 
     // Erste Runde: Variablen-Zuweisungen verarbeiten
-    for (let i = 0; i < lines.length; i++) {
+    for (let i = 0; i < lines.length; i++)
+    {
       const line = lines[i].trim();
       lines[i] = line
 
       // Zuweisung, z. B. x=3 oder y = 4
       const assign = line.match(/^(\w+)\s*=\s*([^=].*)$/);
-      if (assign) {
+      if (assign)
+      {
         const varName = assign[1];
         const expr = assign[2];
-        try {
+        try
+        {
           const val = Function(...Object.keys(context), 'return ' + expr)(...Object.values(context));
           context[varName] = val;
-        } catch {
+        }
+        catch
+        {
           // ignorieren
         }
       }
     }
 
     // Zweite Runde: Zeilen mit Ausdruck und "=" am Ende berechnen
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-      const exprMatch = line.match(/^(.+)=\s*$/);
-      if (exprMatch) {
-        const expr = exprMatch[1].trim();
-        try {
-          const result = Function(...Object.keys(context), 'return ' + expr)(...Object.values(context));
-          //lines[i] = expr + ' = ' + `${result}`;
-          AddAutoAntwort(expr.length + 1, i, `${parseFloat(result.toFixed(2))}`)
-        } catch {
-          //lines[i] = expr + ' = [Fehler]';
+
+    if(textarea.id == "Rechnungen")
+    {
+      for (let i = 0; i < lines.length; i++)
+      {
+        const line = lines[i].trim();
+        
+
+        const timeOpMatch = line.match(/^(\d{1,2}).(\d{2})\s*([\+\-])\s*(\d{1,2}).(\d{2})\s*=$/);
+        if (timeOpMatch)
+        {
+          const h1 = parseInt(timeOpMatch[1], 10);
+          const m1 = parseInt(timeOpMatch[2], 10);
+          const op = timeOpMatch[3]; // '+' oder '-'
+          const h2 = parseInt(timeOpMatch[4], 10);
+          const m2 = parseInt(timeOpMatch[5], 10);
+
+          if (isNaN(h1) || isNaN(m1) || isNaN(h2) || isNaN(m2))
+          {
+            // Ungültige Zahlen, Fehler ausgeben oder ignorieren
+            AddAutoAntwort(line.indexOf('=') + 1, i, '_');
+            continue;
+          }
+
+          const minutes1 = h1 * 60 + m1;
+          const minutes2 = h2 * 60 + m2;
+
+          let diff;
+          if (op === '+')
+          {
+            diff = (minutes1 + minutes2) % (24 * 60);
+          }
+          else
+          {
+            diff = minutes1 - minutes2;
+            if (diff < 0) diff += 24 * 60;
+          }
+
+          const resultH = Math.floor(diff / 60);
+          const resultM = diff % 60;
+
+          const resultText = `${resultH.toString().padStart(2, '0')}:${resultM.toString().padStart(2, '0')}`;
+          AddAutoAntwort(line.indexOf('=') + 1, i, resultText);
+          continue;
+        }
+
+        const exprMatch = line.match(/^(.+)=\s*$/);00
+
+        if (exprMatch)
+        {
+          const expr = exprMatch[1].trim();
+          try
+          {
+            const result = Function(...Object.keys(context), 'return ' + expr)(...Object.values(context));
+            //lines[i] = expr + ' = ' + `${result}`;
+
+            var Ausgabe = result.toString()
+
+            if(typeof parseFloat(result) === 'number' && isFinite(parseFloat(result)))
+            {
+              Ausgabe = parseFloat(result.toFixed(2))
+            }
+
+            AddAutoAntwort(expr.length + 1, i, Ausgabe)//`${}`)
+          }
+          catch
+          {
+            AddAutoAntwort(expr.length + 1, i, `_`)
+            //lines[i] = expr + ' = [Fehler]';
+          }
         }
       }
     }
+   
 
     textarea.value = lines.join('\n');
   
@@ -156,4 +470,33 @@
   }
   
   
+  function timeToDecimal(t) {
+    const match = t.match(/^(\d{1,2}):(\d{2})$/);
+    if (!match) return NaN;
+    return parseInt(match[1], 10) + parseInt(match[2], 10) / 60;
+  }
+
+  function decimalToTime(dec) {
+    const h = Math.floor(dec);
+    const m = Math.round((dec - h) * 60);
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+  }
+  
+
+</script>
+
+<script>
+  document.addEventListener('wheel', function (e) {
+    if (e.ctrlKey) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+</script>
+
+<script>
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '0')) {
+      e.preventDefault();
+    }
+  });
 </script>
