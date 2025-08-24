@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Arbeitszeit</title>
+        
+        <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </head>
+
+    <body style="text-align: center;">
+        <br><br>
+
+        <div style="margin-left: 40%; margin-right: 40%;">
+            <label for="basic-url">Arbeitszeit berechnen</label>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon3">Kommt:</span>
+                </div>
+                <input type="text" oninput="InputTextbox(Eingabe.value)" id="Eingabe" class="form-control" id="basic-url" aria-describedby="basic-addon3">
+            </div>
+
+            <div style="font-size: xx-large;" id="Ausgabe">
+                Bitte eingeben
+            </div>
+        </div>
+        
+    </body>
+</html>
+
+
+<script>
+
+    var Now = new Date()
+    Eingabe.value = `${Now.getHours()}:${Now.getMinutes()}`
+    InputTextbox(Eingabe.value)
+
+    function InputTextbox(text_)
+    {
+        var text = text_.replace(/[.,]/g, ":")
+
+        if(text.length == 5)
+        {
+            var Kommt = new Date(2000, 0, 1, text.split(":")[0], text.split(":")[1], 0)
+            var Geht = new Date(Kommt.getTime() + (9*60 + 15) * 60 * 1000)
+            
+            Ausgabe.innerHTML = `➡️ ${Geht.getHours().toString().padStart(2, "0")}:${Geht.getMinutes().toString().padStart(2, "0")}`
+        }
+        else
+        {
+            Ausgabe.innerHTML = `Bitte eingeben`
+        }        
+    }
+</script>
